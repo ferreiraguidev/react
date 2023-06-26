@@ -1,14 +1,60 @@
-import { Box, Button, Checkbox, Flex, Heading, Icon, Table, Tbody, Td, Th, Thead, Tr, Text } from "@chakra-ui/react";
+/* eslint-disable react/jsx-no-undef */
+import { Box,
+     Button, 
+     Checkbox, 
+     Flex, 
+     Heading, 
+     Icon, 
+     Table, 
+     Tbody, 
+     Td, Th, 
+     Thead, Tr, 
+     Text, 
+     Spinner, 
+     Link, 
+     HStack, 
+     LightMode, 
+     useColorModeValue, 
+     IconButton } from "@chakra-ui/react";
+
 import React from "react";
 import { Sidebar } from "../../components/Form/Sidebar";
 import Header from "../../components/Form/Header";
-import { RiAddLine, RiPencilLine } from "react-icons/ri";
+import { RiAddLine, RiCloseLine, RiPencilLine } from "react-icons/ri";
 import { Pagination } from "../../components/Form/Pagination";
-import Link from 'next/link';
+import NextLink from 'next/link';
+import { ConfirmationDialog } from '../../components/Dialog/ConfirmationDialog';
+import { useDeleteUser } from '../../hooks/useDeleteUser';
+import { useUsers } from "../../hooks/useUsers";
+
+
+
+
+interface ColumnsProps {
+    name: string;
+  }
+
+const LinkItems: Array<ColumnsProps> = [
+    {name: 'name'},
+    {name: 'email'},
+    {name: 'a'},
+    {name: 'b'},
+    {name: 'c'},
+  ];
 
 
 
 export default function UserList(){
+    const mainColor = useColorModeValue('white', 'gray.800');
+
+    const {data, isFetching, error} = useUsers();
+
+    const deleteUser = useDeleteUser();
+  
+    const handleDeleteUser = async (userId: number) => {
+      await deleteUser.mutateAsync(userId)
+    }
+
 
     return (
 
@@ -16,8 +62,8 @@ export default function UserList(){
                 <Header/>
 
                 <Flex w="100%" my="6" maxWidth={1480} mx="auto" px="6">
-                    <Sidebar/>
                 
+                <Sidebar/>
                 
                 <Box flex="1" borderRadius={8} bg="gray.800" p="8">
                     <Flex mb="8" justify="space-between" align="center">
@@ -31,45 +77,111 @@ export default function UserList(){
 
                     </Flex>
 
+                    <>
+
                     <Table colorScheme="whiteAlpha">
                         <Thead>
                             <Tr>
-                                <Th px="6" color="gray.300" width="8"></Th>
-                                <Th>User</Th>
-                                <Th>Registration Date</Th>
+                                {LinkItems.map((columns, index) => (
+                                 <Th key={columns.name}>
+                                    <Flex
+                                        justify={index == 0 ? 'start' : 'center' && index == (LinkItems.length - 1) ? 'flex-end' : 'center'}>
+                                        {columns.name}
+                                    </Flex>
+                                </Th>
+                                ))}
                             </Tr>
                         </Thead>
-                        <Tbody>
-                            <Tr>
-                                <Td px="6">
-                                    <Checkbox colorScheme="pink"/>
-                                </Td>
-                                <Td>
-                                    <Box>
-                                        <Text fontWeight="bold">Guilherme Ferreira</Text>
-                                        <Text fontWeight="normal">ferreiragui.dev</Text>
-                                    </Box>
-                                </Td>
-                                <Td>06/06</Td>
-                                <Td>
-                                    <Button as="a"
+                        
+                        
+                    <Tbody>
+                    
+                    {data?.map(user => {
+
+                        
+                    return (
+                      <Tr key={user.id}>
+                        <Td>
+                          <Box>
+                            <Text fontWeight={"bold"} color={mainColor == 'white' ? 'gray.700' : 'purple.400'}
+                            >{user.name}
+                            </Text>
+                            <Text fontSize={"sm"} color={"gray.300"}>{user.email}</Text>
+                          </Box>
+                        </Td>
+
+                        <Td pl={0} pr={0}>
+                          <Flex justify={"center"}>
+                            <Text>{user.cpf}</Text>
+                          </Flex>
+                        </Td>
+
+                        <Td pl={0} pr={0}>
+                          <Flex justify={"center"}>
+                            <Flex justify={"center"}>
+                              <Text>{user.age}</Text>
+                            </Flex>
+                          </Flex>
+                        </Td>
+
+                        <Td pl={0} pr={0}>
+                          <Flex justify={"center"}>
+                            <Text fontWeight={"bold"}>2020/01/20</Text>
+                          </Flex>
+                        </Td>
+
+                        <Td pl={0} pr={0}>
+                          <Flex justify={"flex-end"}>
+                            <HStack>
+                              <LightMode>
+                                <NextLink
+                                  href={{
+                                    pathname: '/user/[id]',
+                                    query: {id: user.id},
+                                  }}
+                                  passHref>
+
+                                  <Button
+                                    size={"sm"}
+                                    fontSize={"sm"}
+                                    colorScheme={"facebook"}
+                                    leftIcon={<Icon as={RiPencilLine} fontSize={"16"} />}
+                                    >
+                                    Editar
+                                  </Button>
+                                </NextLink>
+                              </LightMode>
+
+                              <LightMode>
+                                <ConfirmationDialog
+                                  onOk={() => handleDeleteUser(user.id)}
+                                    
+                                    trigger={(onOpen) => <IconButton
+                                    as={"a"}
+                                    colorScheme={"red"}
+                                    aria-label={"Call Segun"}
                                     size="sm"
-                                    fontSize="sm"
-                                    colorScheme="purple"
-                                    leftIcon={ <Icon as={RiPencilLine} /> }>
-                                        Edit
-                                    </Button>
-                                </Td>
-                            </Tr>
-                        </Tbody>
+                                    icon={<Icon as={RiCloseLine} fontSize={"16"} />}
+                                    onClick={onOpen} />}
+
+                                    title={"Delete"} mainColor={mainColor} buttonText={"Delete"}
+                                    description='no description' />
+                              </LightMode>
+                            </HStack>
+                          </Flex>
+                        </Td>
+
+                        
+                      </Tr>
+                    )
+                  })}
+                </Tbody>
                     </Table>
-
+                </>
                     <Pagination/>
-
                 </Box>
             </Flex>
+            
         </Box>
-        
-
     );
 }

@@ -1,43 +1,68 @@
-import { FormControl, FormLabel, Input as ChakraInput, InputProps as ChakraInputProps, FormErrorMessage } from '@chakra-ui/react';
-import { FieldError } from 'react-hook-form';
+import {
+    FormControl,
+    FormErrorMessage,
+    FormLabel,
+    Input as ChakraInput,
+    InputProps as ChakraInputProps,
+    useColorModeValue
+  } from "@chakra-ui/react";
 import React from "react";
-import * as yup from 'yup';
-import {yupResolver} from '@hookform/resolvers/yup'
-import { error } from 'console';
-
-
-interface InputProps extends ChakraInputProps{
-    name: string;
-    label: string;
-    error: FieldError;
-}
-
-const signInFormSchema = yup.object().shape({
-    email: yup.string().required(),
-    password: yup.string().required(),
-
-}) 
-
-
-
-export function Input({name, label, error, ...rest}, ref ): InputProps ){
-
-    return(
-        
-        <FormControl isInvalid {... error} >
-            { !!label && <FormLabel htmlFor={name}> {label} </FormLabel> }
-
-        
-        <ChakraInput name='password' type='password' id='password' 
-                focusBorderColor='pink.500' bgColor='gray.900' variant='filled' size='lg' {...rest}
-    
-            {...!!error && (
-                <FormErrorMessage>
-                    {error.message}
-                </FormErrorMessage>
-            )}
-            
-            />
-        </FormControl>
+  import { forwardRef, ForwardRefRenderFunction } from "react";
+  import InputMask from "react-input-mask";
+  
+  
+  interface InputProps extends ChakraInputProps {
+    name?: string;
+    label?: string;
+    error?: any;
+    mask?: string;
+    important?: string;
+  }
+  
+  const InputBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> = ({
+                                                                               important,
+                                                                               name,
+                                                                               mask,
+                                                                               label,
+                                                                               error = null,
+                                                                               value,
+                                                                               onChange,
+                                                                               type,
+                                                                               placeholder,
+                                                                               ...rest
+                                                                             }: InputProps, ref) => {
+    const mainColor = useColorModeValue('gray.10', 'gray.900');
+  
+    return (
+      <FormControl isInvalid={!!error}>
+        {
+          !!label && <FormLabel htmlFor={name}>{label}<span style={{color: "red"}}>{important}</span></FormLabel>
+        }
+        <InputMask
+          mask={mask}
+          name={name}
+          value={value} // needed because of bug in react-input-mask
+          onChange={onChange} // needed because of bug in react-input-mask
+        >
+          {(inputProps) => <ChakraInput
+            isDisabled={rest.isDisabled}
+            placeholder={placeholder}
+            type={type}
+            {...inputProps}
+            value={value} // needed because of bug in react-input-mask
+            onChange={onChange} // needed because of bug in react-input-mask
+            focusBorderColor={"blue.500"}
+            bgColor={mainColor}
+          />
+          }
+        </InputMask>
+  
+        <FormErrorMessage>
+          {error}
+        </FormErrorMessage>
+      </FormControl>
     );
-}
+  }
+  
+  export const InputFormik = forwardRef(InputBase)
+  

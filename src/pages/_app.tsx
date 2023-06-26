@@ -2,6 +2,9 @@
 import { AppProps } from "next/app";
 import {ChakraProvider} from '@chakra-ui/react'
 import { theme } from '../styles/theme';
+import { QueryClientProvider } from "react-query";
+import React from "react";
+import { queryClient } from "../services/queryClient";
 
 
 
@@ -10,9 +13,11 @@ function MyApp({Component, pageProps}: AppProps){
 
     return(
 
-        <ChakraProvider resetCSS theme={theme}>
-            <Component {...pageProps}/>
+        <QueryClientProvider client={queryClient}>
+        <ChakraProvider theme={theme}>
+          <Component {...pageProps} />
         </ChakraProvider>
+      </QueryClientProvider>
 
     )
 }
