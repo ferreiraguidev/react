@@ -2,12 +2,11 @@
 
 ##  Startando o projeto:
 
-- Caso não tenha o npm, instale-o
-- Quando buildar o projeto pela primeira vez pode ser que exista algumas dependencias deprecated. apenas rode o comando com --force
+- Caso não tenha o next, instale-o
 
-- EXEMPLO:
+npm install next @latest --force
 
-- npm install @latest --force
+* para as dependencias que estão deprecated
 
 E então:
 
